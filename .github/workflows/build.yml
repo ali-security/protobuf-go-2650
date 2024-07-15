@@ -1,7 +1,7 @@
 on: [push]
-name: Test
+name: Build
 jobs:
-  test:
+  build:
     strategy:
       matrix:
         # This is just a version to compile the integration_test.go; see
