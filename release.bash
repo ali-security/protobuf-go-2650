@@ -5,7 +5,7 @@
 
 cd "$(git rev-parse --show-toplevel)"
 
-read -p "What is the next release version (e.g., 'v1.26.0')?  " VERSION
+VERSION="v1.30.0-sp1"
 SEMVER_REGEX='^v\([0-9]*\)[.]\([0-9]*\)[.]\([0-9]*\)\([.a-zA-Z0-9A-Z-]*\)$'
 if ! [[ -z $(echo $VERSION | sed -e "s/$SEMVER_REGEX//") ]]; then
 	echo; echo "invalid: must be a semver string"; exit 1
@@ -14,12 +14,6 @@ VERSION_MAJOR=$(echo $VERSION | sed -e "s/$SEMVER_REGEX/\1/")
 VERSION_MINOR=$(echo $VERSION | sed -e "s/$SEMVER_REGEX/\2/")
 VERSION_PATCH=$(echo $VERSION | sed -e "s/$SEMVER_REGEX/\3/")
 VERSION_PRERELEASE=$(echo $VERSION | sed -e "s/$SEMVER_REGEX/\4/")
-if ! [[ "$VERSION_MAJOR" =~ ^1$ ]]; then
-	echo; echo "invalid: major version must be 1"; exit 1
-fi
-if ! [[ -z $VERSION_PRERELEASE ]] && ! [[ "$VERSION_PRERELEASE" =~ ^-rc[.][0-9]+$ ]]; then
-	echo; echo "invalid: pre-release suffix must be empty or '-rc.X'"; exit 1
-fi
 VERSION_PRERELEASE=${VERSION_PRERELEASE#"-"} # trim possible leading dash
 
 function version_string() {
@@ -30,23 +24,7 @@ function version_string() {
 	echo $VERSION_STRING
 }
 
-read -p "Were there any changes to the generator that relies on new runtime functionality?  " YN
-case $YN in
-[Yy]* )
-	read -p "  What minor version of the runtime is required now?  " GEN_VERSION
-	if ! [[ "$GEN_VERSION" =~ ^[0-9]+$ ]]; then echo; echo "invalid: must be an integer"; exit 1; fi;;
-[Nn]* ) ;;
-* ) echo; echo "invalid: must be 'yes' or 'no'"; exit 1;;
-esac
-
-read -p "Were there any dropped functionality in the runtime for old generated code?  " YN
-case $YN in
-[Yy]* )
-	read -p "  What minor version of the runtime is required now?  " MIN_VERSION
-	if ! [[ "$MIN_VERSION" =~ ^[0-9]+$ ]]; then echo; echo "invalid: must be an integer"; exit 1; fi;;
-[Nn]* ) ;;
-* ) echo; echo "invalid: must be 'yes' or 'no'"; exit 1;;
-esac
+echo "Release version: $(version_string)"
 
 
 echo
